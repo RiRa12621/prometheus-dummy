@@ -1,0 +1,34 @@
+version: '3.9'
+
+volumes:
+  prometheus_data: {}
+
+networks:
+
+  prom:
+
+services:
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - 9090:9090
+    links:
+      - example-app:example-app
+    networks:
+      - prom
+    restart: always
+
+  example-app:
+    image: ghcr.io/rhobs/prometheus-example-app:latest
+    ports:
+      - 8080:8080
+    networks:
+      - prom
+    restart: always
